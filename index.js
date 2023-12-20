@@ -1,7 +1,23 @@
+const fs = require('fs');
+
 require('@g-js-api/g.js');
 
 let invis_color = unknown_c();
 invis_color.set(rgba(0, 0, 0, 0));
+
+let get = (filename) => {
+	return new Promise((resolve) => {
+		let f = fs.createReadStream(filename);
+		let chunks = [];
+	
+		f.on("data", (chunk) => chunks.push(chunk));
+	
+		f.on('end', () => {
+			chunks = JSON.parse(Buffer.concat(chunks).toString());
+			resolve(chunks)
+		})
+	});
+}
 
 let create_triangle = (top, bottom_left, bottom_right, color_1, color_2) => {
 	bottom_left = bottom_left.map(x => x * 3);
@@ -44,11 +60,22 @@ let create_triangle = (top, bottom_left, bottom_right, color_1, color_2) => {
 	$.add(bl_dot_1); $.add(bl_dot_2); $.add(bl_dot_3);
 }
 
+let [translation_x, translation_y] = [750, 650];
 let [top_color, bottom_color] = [unknown_c(), unknown_c()];
-
 top_color.set(rgb(255, 0, 0));
 bottom_color.set(rgb(255, 255, 255));
 
-create_triangle([25, 100], [15, 50], [50, 50], top_color, bottom_color)
-
-$.exportToSavefile({ info: true });
+(async () => {
+	let data = await get('out.json');
+	data.frames.forEach(frame => {
+		frame.meshes.forEach(triangles => {
+			triangles.forEach(triangle => {
+				var x = vertex[0] * scaling + translation_x;
+				var y = -vertex[1] * scaling + translation_y; // Negate the y-coordinate to match Blender's coordinate system
+			})
+		})
+	})
+	// create_triangle([25, 100], [15, 50], [50, 50], top_color, bottom_color)
+	
+	// $.exportToSavefile({ info: true });
+})();
